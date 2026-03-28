@@ -1,4 +1,4 @@
-package com.ceos23.spring_cgv_23rd.Theater.Domain;
+package com.ceos23.spring_cgv_23rd.Food.Domain;
 
 import com.ceos23.spring_cgv_23rd.Media.Domain.Media;
 import jakarta.persistence.*;
@@ -13,16 +13,22 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Food {
-    private Food(String menuName, int price){
-        this.menuName = menuName;
+    private Food(String menuName, int price, String description, MenuType menuType){
+        this.foodName = menuName;
         this.price = price;
+        this.description = description;
+        this.menuType = menuType;
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String menuName;
+    private MenuType menuType;
+
+    private String description;
+
+    private String foodName;
 
     private int price;
 
@@ -34,12 +40,12 @@ public class Food {
         foodPhotos.addAll(photos);
     }
 
-    public static Food create(String menuName, int price){
-        return new Food(menuName, price);
+    public static Food create(String menuName, int price, String description, MenuType menuType){
+        return new Food(menuName, price, description, menuType);
     }
 
-    public static Food create(String menuName, int price, List<Media> photos){
-        Food food = new Food(menuName, price);
+    public static Food create(String menuName, int price, String description, MenuType menuType, List<Media> photos){
+        Food food = new Food(menuName, price, description, menuType);
         food.addFoodPhotos(photos);
         return food;
     }

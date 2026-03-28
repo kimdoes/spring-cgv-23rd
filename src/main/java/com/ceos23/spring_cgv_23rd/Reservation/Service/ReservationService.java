@@ -59,8 +59,8 @@ public class ReservationService {
      * @return
      */
 
-    public ReservationResponseDTO reserve(ReservationRequestDTO req){
-        User user = userRepository.findById(req.userId()).orElseThrow(() -> new EntityNotFoundException("유저 정보가 없습니다."));
+    public ReservationResponseDTO reserve(String loginId, ReservationRequestDTO req){
+        User user = userRepository.findByLoginId(loginId).orElseThrow(() -> new EntityNotFoundException("유저 정보가 없습니다."));
         Screening screening = screeningRepository.findById(req.screeningId()).orElseThrow(() -> new EntityNotFoundException("상영 정보가 없습니다."));
 
         seatValidator.checkValidity(screening, req.seatInfos());
@@ -93,7 +93,16 @@ public class ReservationService {
         );
     }
 
-    public void cancel(long reservationId) throws Exception{
-        screeningRepository.deleteById(reservationId);
+    public void cancel(String loginId, long reservationId) throws Exception{
+        Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 예약은 존재하지 않습니다."
+        ));
+
+        if (reservation.getUser().getLoginId().equals(loginId)){
+            screeningRepository.deleteById(reservationId);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "사용자와 예약자가 다릅니다.");
+        }
+
     }
 }

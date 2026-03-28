@@ -1,7 +1,11 @@
 package com.ceos23.spring_cgv_23rd.Theater.Domain;
 
+import com.ceos23.spring_cgv_23rd.Food.Domain.Food;
+import com.ceos23.spring_cgv_23rd.Food.Domain.MenuType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @Getter
 @Entity
@@ -11,16 +15,18 @@ public class TheaterMenu {
         this.food = food;
         this.theater = theater;
         this.soldOut = soldOut;
-        this.amount = amount;
+        this.sold = amount;
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    private int sold;
+
     private boolean soldOut;
 
-    private int amount;
+    private boolean ablePickUpLater;
 
     @ManyToOne
     @JoinColumn(name = "food")
@@ -40,15 +46,34 @@ public class TheaterMenu {
         ttr.getTheaterMenus().add(this);
     }
 
-    public void chargeAmount(int amount){
-        this.amount += amount;
+    public void charge(int amount){
+        this.sold += amount;
+        soldOut = true;
     }
 
-    public void dischargeAmount(int amount){
-        this.amount -= amount;
+    public void buy(int amount){
+        if (soldOut || sold < amount){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "재고가 없습니다.");
+        }
+        this.sold -= amount;
+        if (sold == 0){
+            soldOut = true;
+        }
     }
 
     public static TheaterMenu create(Food food, Theater theater, int amount){
-        return new TheaterMenu(food, theater, false, amount);
+        if (amount == 0){
+            TheaterMenu tm = new TheaterMenu(food, theater, true, amount);
+            tm.addTheaterInEntity(theater);
+
+            return tm;
+        } else if (amount < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 인수입니다.");
+        } else {
+            TheaterMenu tm = new TheaterMenu(food, theater, false, amount);
+            tm.addTheaterInEntity(theater);
+
+            return tm;
+        }
     }
 }

@@ -91,12 +91,12 @@ public class TheaterService {
      * @return 영화관 검색결과. id값과 이름 필드
      */
     @Transactional()
-    public LikedTheaterResponseDTO theaterBookMarkService(long userId, long theaterId){
+    public LikedTheaterResponseDTO theaterBookMarkService(String loginId, long theaterId){
         Theater theater = theaterRepository.findById(theaterId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 ID의 영화관이 없습니다.")
         );
 
-        User user = userRepository.findById(userId).orElseThrow(
+        User user = userRepository.findByLoginId(loginId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 ID의 사용자가 없습니다.")
         );
 
@@ -122,12 +122,11 @@ public class TheaterService {
     /**
      * 찜한 영화관 리스트 보기
      *
-     * @param userId
      * @return
      */
     @Transactional(readOnly = true)
-    public CheckLikedTheaterResponseDTO checkTheaterBookMark(long userId){
-        User user = userRepository.findById(userId).orElseThrow(
+    public CheckLikedTheaterResponseDTO checkTheaterBookMark(String loginId){
+        User user = userRepository.findByLoginId(loginId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 ID의 사용자가 없습니다.")
         );
 

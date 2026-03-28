@@ -1,5 +1,6 @@
 package com.ceos23.spring_cgv_23rd.Movie.Controller;
 
+import com.ceos23.spring_cgv_23rd.Movie.DTO.Request.BookmarkMovieRequestDTO;
 import com.ceos23.spring_cgv_23rd.Movie.DTO.Response.LikedMovieResponseDTO;
 import com.ceos23.spring_cgv_23rd.Movie.DTO.Response.MovieSearchAllResponseDTO;
 import com.ceos23.spring_cgv_23rd.Movie.DTO.Response.MovieSearchResponseDTO;
@@ -7,6 +8,8 @@ import com.ceos23.spring_cgv_23rd.Movie.Service.MovieService;
 import com.ceos23.spring_cgv_23rd.Screen.DTO.Response.ScreeningSearchResponseDTO;
 import com.ceos23.spring_cgv_23rd.Theater.DTO.Response.CheckLikedMovieResponseDTO;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,9 +22,9 @@ public class MovieController {
         this.movieService = movieService;
     }
 
-    @GetMapping("/{searchQuery}")
+    @GetMapping(params = "searchQuery")
     public ResponseEntity<MovieSearchResponseDTO> searchWithName(
-            @PathVariable String searchQuery
+            @RequestParam String searchQuery
     ) {
         return movieService.theaterSearchService(searchQuery);
     }
@@ -37,22 +40,21 @@ public class MovieController {
      *
      * 이미 눌려져있는데 한 번 더 누르면 취소
      */
-    @GetMapping(params = {"userId", "movieId"})
+    @PostMapping("/likes")
     public ResponseEntity<LikedMovieResponseDTO> bookmarkMovie(
-            @RequestParam long userId,
-            @RequestParam long movieId
-    ) {
-        return ResponseEntity.ok(movieService.movieLikService(userId, movieId));
+            @RequestBody BookmarkMovieRequestDTO bmrDTO
+            ) {
+        return ResponseEntity.ok(movieService.movieLikService(bmrDTO));
     }
 
     /**
      * 북마크한 영화 조회
      */
-    @GetMapping(params = "userId")
+    @GetMapping("/likes")
     public ResponseEntity<CheckLikedMovieResponseDTO> getBookmarkMovieByUser(
-            @RequestParam long userId
-    ){
-        return ResponseEntity.ok(movieService.checkLikedMovieByUserId(userId));
+            @AuthenticationPrincipal User user
+            ){
+        return ResponseEntity.ok(movieService.checkLikedMovieByUserId(user.getUsername()));
     }
 
 }

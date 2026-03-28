@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.apache.coyote.BadRequestException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -23,8 +24,8 @@ public class Theater {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToMany(mappedBy = "theater")
-    private List<TheaterMenu> theaterMenus;
+    @OneToMany(mappedBy = "theater", cascade = CascadeType.ALL)
+    private List<TheaterMenu> theaterMenus = new ArrayList<>();
 
     private String name;
 

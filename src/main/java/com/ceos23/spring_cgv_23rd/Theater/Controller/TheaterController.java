@@ -6,6 +6,8 @@ import com.ceos23.spring_cgv_23rd.Theater.DTO.Response.TheaterSearchResponseDTO;
 import com.ceos23.spring_cgv_23rd.Theater.Domain.Region;
 import com.ceos23.spring_cgv_23rd.Theater.Service.TheaterService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -59,22 +61,22 @@ public class TheaterController {
      *
      * @return 극장id와 이름
      */
-    @GetMapping(params = {"userId", "theaterId"})
+    @GetMapping(value = "/likes", params = "theaterId")
     public ResponseEntity<LikedTheaterResponseDTO> likey(
-            @RequestParam long userId,
-            @RequestParam long theaterId
+            @RequestParam long theaterId,
+            @AuthenticationPrincipal User user
     ) {
-        return ResponseEntity.ok(theaterService.theaterBookMarkService(userId, theaterId));
+        return ResponseEntity.ok(theaterService.theaterBookMarkService(user.getUsername(), theaterId));
     }
 
     /**
      * 좋아요 조회
      */
-    @GetMapping(params = {"userId"})
+    @GetMapping(value = "/likes")
     public ResponseEntity<CheckLikedTheaterResponseDTO> likey(
-            @RequestParam long userId
-    ){
-        return ResponseEntity.ok(theaterService.checkTheaterBookMark(userId));
+            @AuthenticationPrincipal User user
+            ){
+        return ResponseEntity.ok(theaterService.checkTheaterBookMark(user.getUsername()));
     }
 
 }

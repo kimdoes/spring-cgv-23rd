@@ -15,13 +15,12 @@ import java.util.stream.Collectors;
 
 
 public record ReservationRequestDTO(
-        long userId,
         long screeningId,
         List<ReservationSeatInfo> seatInfos
 ) {
-    public static ReservationRequestDTO create(long userId, long screeningId, List<ReservationSeatInfo> seatInfos){
+    public static ReservationRequestDTO create(long screeningId, List<ReservationSeatInfo> seatInfos){
         return new ReservationRequestDTO(
-                userId, screeningId, seatInfos);
+                screeningId, seatInfos);
     }
 
     public Map<String, SeatInfo> toReservingSeats(){

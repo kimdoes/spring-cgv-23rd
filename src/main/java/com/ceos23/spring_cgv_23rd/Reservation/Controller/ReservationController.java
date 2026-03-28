@@ -6,6 +6,8 @@ import com.ceos23.spring_cgv_23rd.Reservation.DTO.Response.RemainingSeatsDTO;
 import com.ceos23.spring_cgv_23rd.Reservation.DTO.Response.ReservationResponseDTO;
 import com.ceos23.spring_cgv_23rd.Reservation.Service.ReservationService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,9 +22,10 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<ReservationResponseDTO> reserve(
-            @RequestBody ReservationRequestDTO requestDTO
+            @RequestBody ReservationRequestDTO requestDTO,
+            @AuthenticationPrincipal User user
             ){
-        return ResponseEntity.ok(reservationService.reserve(requestDTO));
+        return ResponseEntity.ok(reservationService.reserve(user.getUsername(), requestDTO));
     }
 
     /**
@@ -30,7 +33,7 @@ public class ReservationController {
      * screening 객체를 전해주면 남은 좌석 정보 전달
      *
      */
-    @GetMapping(params = {"screeningId"})
+    @GetMapping("/screeningId")
     public ResponseEntity<RemainingSeatsDTO> getRemaining(
             @RequestParam long screeningId
     ){
@@ -40,9 +43,10 @@ public class ReservationController {
 
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<ReservationResponseDTO> withdraw(
+            @AuthenticationPrincipal User user,
             @PathVariable long reservationId
     ) throws Exception {
-        reservationService.cancel(reservationId);
+        reservationService.cancel(user.getUsername(), reservationId);
         ReservationResponseDTO res = ReservationResponseDTO.createForDelete();
 
         return ResponseEntity.ok(res);

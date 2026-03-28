@@ -1,5 +1,6 @@
 package com.ceos23.spring_cgv_23rd.Movie.Service;
 
+import com.ceos23.spring_cgv_23rd.Movie.DTO.Request.BookmarkMovieRequestDTO;
 import com.ceos23.spring_cgv_23rd.Movie.DTO.Response.LikedMovieResponseDTO;
 import com.ceos23.spring_cgv_23rd.Movie.DTO.Response.MovieSearchAllResponseDTO;
 import com.ceos23.spring_cgv_23rd.Movie.DTO.Response.MovieSearchResponseDTO;
@@ -61,7 +62,10 @@ public class MovieService {
      *
      * 이미 눌려져있는데 한 번 더 누르면 취소
      */
-    public LikedMovieResponseDTO movieLikService(long userId, long movieId){
+    public LikedMovieResponseDTO movieLikService(BookmarkMovieRequestDTO bmrDTO){
+        long userId = bmrDTO.userId();
+        long movieId = bmrDTO.movieId();
+
         Movie movie = movieRepository.findById(movieId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "영화가 존재하지 않습니다."));
 
@@ -89,8 +93,8 @@ public class MovieService {
     /**
      * 북마크한 영화 조회
      */
-    public CheckLikedMovieResponseDTO checkLikedMovieByUserId(long userId) {
-        User user = userRepository.findById(userId).orElseThrow(
+    public CheckLikedMovieResponseDTO checkLikedMovieByUserId(String loginId) {
+        User user = userRepository.findByLoginId(loginId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "사용자 정보가 존재하지 않습니다."));
 
         List<BookmarkedMovie> bmm = bookmarkedMovieRepository.findByUser(user);

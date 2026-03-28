@@ -1,3 +1,4 @@
+/*
 package com.ceos23.spring_cgv_23rd.global;
 
 import com.ceos23.spring_cgv_23rd.global.DTO.ErrDTO;
@@ -20,3 +21,4 @@ public class GlobalExceptionHandler {
                 .body(err);
     }
 }
+*/
