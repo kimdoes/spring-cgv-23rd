@@ -1,8 +1,6 @@
 package com.ceos23.spring_cgv_23rd.global;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
@@ -37,8 +35,19 @@ public class TokenProvider implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
+        System.out.println("key >>> " + jwtSecretKey);
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public boolean validateToken(String token){
+        try {
+            getTokenLoginId(token);
+            return true;
+        } catch (IllegalArgumentException | MalformedJwtException | ExpiredJwtException e){
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public String getAccessToken(HttpServletRequest req) {
@@ -61,28 +70,28 @@ public class TokenProvider implements InitializingBean {
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.joining(","));
 
-        Claims claims = Jwts.claims().build();
         int expiration = type.getValidTime() * 1000;
-
-        claims.put("auth", authorities);
 
         return Jwts.builder()
                 .subject(loginId)
                 .expiration(new Date(new Date().getTime() + expiration))
-                .claims(claims)
+                .claim("auth", authorities)
                 .issuedAt(new Date())
                 .signWith(key)
                 .compact();
     }
 
     public String getTokenLoginId(String token) {
-        return Jwts.parser().verifyWith((SecretKey) key).build().parseSignedClaims(token).getPayload().getSubject();
+        return Jwts.parser()
+                .verifyWith((SecretKey) key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
     }
 
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails =
-                (UserDetails)
-                        userDetailsService.loadUserByUsername(getTokenLoginId(token));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(getTokenLoginId(token));
 
         return new UsernamePasswordAuthenticationToken(
                 userDetails, token, userDetails.getAuthorities());
