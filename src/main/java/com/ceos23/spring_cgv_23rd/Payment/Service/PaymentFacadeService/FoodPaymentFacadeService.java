@@ -1,0 +1,116 @@
+package com.ceos23.spring_cgv_23rd.Payment.Service.PaymentService;
+
+import com.ceos23.spring_cgv_23rd.FoodOrder.Domain.Cart;
+import com.ceos23.spring_cgv_23rd.FoodOrder.Domain.Order;
+import com.ceos23.spring_cgv_23rd.FoodOrder.Repository.CartRepository;
+import com.ceos23.spring_cgv_23rd.FoodOrder.Repository.FoodOrderRepository;
+import com.ceos23.spring_cgv_23rd.Payment.DTO.PaymentRequestDTO;
+import com.ceos23.spring_cgv_23rd.Payment.DTO.PaymentResponseDTO;
+import com.ceos23.spring_cgv_23rd.Payment.Domain.PayType;
+import com.ceos23.spring_cgv_23rd.Payment.Domain.Payment;
+import com.ceos23.spring_cgv_23rd.Payment.Repository.PaymentRepository;
+import com.ceos23.spring_cgv_23rd.Payment.Service.ConcurrencyClient;
+import feign.FeignException;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+@Service
+public class FoodPaymentService implements PaymentService {
+    private final PaymentRepository paymentRepository;
+    private final CartRepository cartRepository;
+    private final PaymentIdHandler paymentIdHandler;
+    private final ConcurrencyClient concurrencyClient;
+    private final FoodOrderRepository foodOrderRepository;
+
+    public FoodPaymentService(PaymentRepository paymentRepository,
+                              CartRepository cartRepository,
+                              PaymentIdHandler paymentIdHandler,
+                              ConcurrencyClient concurrencyClient, FoodOrderRepository foodOrderRepository){
+        this.paymentRepository = paymentRepository;
+        this.cartRepository = cartRepository;
+        this.paymentIdHandler = paymentIdHandler;
+        this.concurrencyClient = concurrencyClient;
+        this.foodOrderRepository = foodOrderRepository;
+    }
+
+    @Override
+    @Transactional
+    public Payment buy(PaymentRequestDTO req,
+                       long targetId) {
+        int retry = 0;
+
+        String paymentId = paymentIdHandler.getPaymentId();
+        Cart cart = cartRepository.findById(targetId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지 않는 예약입니다.")
+        );
+
+        if (!cart.isAvailable()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 진행 중이거나 완료된 결제입니다.");
+        }
+
+        cart.startBuying();
+        Payment payment = Payment.create(paymentId, req.storeId(), req.orderName(), req.totalPayAmount(), req.currency(), PayType.ORDER, cart.getId());
+        paymentRepository.save(payment);
+
+        Order order = null;
+
+        while (retry < 3) {
+            try {
+                retry++;
+                System.out.println("결제 시작!\n" + "retry >>> " + retry);
+
+                concurrencyClient.pay(paymentId, req);
+                payment.paymentSuccess();
+                order = cart.buyCart();
+                foodOrderRepository.save(order);
+
+                cart.endPaying();
+                return payment;
+
+            } catch (FeignException fe) {
+                if (handleFeignException(fe)) {
+                    if (fe.status() == 409) {
+                        payment.updatePaymentId(paymentIdHandler.getPaymentId());
+                        paymentId = payment.getId();
+                        continue;
+                    } else if (fe.status() == 500) {
+                        try {
+                            PaymentResponseDTO paymentDTO = concurrencyClient.checkPayment(paymentId);
+
+                            if (paymentDTO.findStatus("PAID")) {
+                                //결제에 성공했으나 응답반환에 실패
+                                if (order == null){
+                                    order = cart.buyCart();
+                                    foodOrderRepository.save(order);
+                                }
+
+                                cart.endPaying();
+                                payment.paymentSuccess();
+                                return payment;
+                            } else {
+                                continue;
+                            }
+                        } catch (FeignException e) {
+                            // 결제에 성공하지도 못 함. 외부 연동 서버 에러
+                            // 다시 결제 시도를 보내야함
+                            continue;
+                        }
+                    }
+                    throw fe;
+                }
+            } catch (Exception e) {
+                //외부연동이 아니라 내부 서버에러
+                e.printStackTrace();
+                cart.fail();
+                payment.paymentFail();
+                throw e;
+            }
+        }
+
+        payment.paymentFail();
+        cart.fail();
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "결제에 실패했습니다.");
+    }
+}
