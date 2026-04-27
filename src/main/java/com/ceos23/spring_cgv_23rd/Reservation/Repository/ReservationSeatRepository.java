@@ -13,7 +13,14 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ReservationSeatRepository extends JpaRepository<ReservationSeat, Long> {
-    List<ReservationSeat> findByScreening(Screening screening);
+    @Query("""
+        select rs from ReservationSeat rs
+        where rs.screening = :screening
+        and rs.reservationStatus = :status
+    """)
+    List<ReservationSeat> findByScreeningAndStatus(
+            @Param("screening") Screening screening,
+            @Param("status") ReservationStatus reservationStatus);
 
     @Query("""
         select new com.ceos23.spring_cgv_23rd.Reservation.DTO.Response.ReservedSeatQuantityResponseDTO(

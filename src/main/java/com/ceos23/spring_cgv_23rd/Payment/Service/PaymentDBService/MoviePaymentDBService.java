@@ -40,7 +40,7 @@ public class MoviePaymentDBService {
         Reservation reservation = getActiveReservationById(targetId);
         String paymentId = paymentIdHandler.getPaymentId();
 
-        if(reservation.canPay()){
+        if(!reservation.canPay()){
             throw new CustomException(ErrorCode.RESERVATION_IS_UNAVAILABLE);
         }
         reservation.buyReservation();

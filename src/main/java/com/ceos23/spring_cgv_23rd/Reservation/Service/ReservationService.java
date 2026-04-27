@@ -118,7 +118,7 @@ public class ReservationService {
     public ResponseEntity<RemainingSeatsDTO> getSeats(long screeningId){
         Screening screening = screeningRepository.findById(screeningId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 상영정보가 존재하지 않습니다."));
 
-        List<String> reservedSeats = reservationSeatRepository.findByScreening(screening).stream()
+        List<String> reservedSeats = reservationSeatRepository.findByScreeningAndStatus(screening, ReservationStatus.RESERVED).stream()
                 .filter(r -> r.getReservationStatus().equals(ReservationStatus.RESERVED))
                 .map(ReservationSeat::getSeatName)
                 .toList();

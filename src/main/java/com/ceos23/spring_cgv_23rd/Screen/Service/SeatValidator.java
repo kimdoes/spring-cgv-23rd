@@ -2,6 +2,7 @@ package com.ceos23.spring_cgv_23rd.Screen.Service;
 
 import com.ceos23.spring_cgv_23rd.Reservation.DTO.Request.ReservationSeatInfo;
 import com.ceos23.spring_cgv_23rd.Reservation.Domain.ReservationSeat;
+import com.ceos23.spring_cgv_23rd.Reservation.Domain.ReservationStatus;
 import com.ceos23.spring_cgv_23rd.Reservation.Repository.ReservationSeatRepository;
 import com.ceos23.spring_cgv_23rd.Screen.Domain.Screening;
 import com.ceos23.spring_cgv_23rd.global.Exception.CustomException;
@@ -26,7 +27,7 @@ public class SeatValidator {
 
     @Transactional(readOnly = true)
     public void checkValidity(Screening screening, List<ReservationSeatInfo> infos){
-        List<ReservationSeat> rs = reservationSeatRepository.findByScreening(screening);
+        List<ReservationSeat> rs = reservationSeatRepository.findByScreeningAndStatus(screening, ReservationStatus.RESERVED);
 
         Set<String> reservedSeatNames = rs.stream()
                 .map(ReservationSeat::getSeatName)

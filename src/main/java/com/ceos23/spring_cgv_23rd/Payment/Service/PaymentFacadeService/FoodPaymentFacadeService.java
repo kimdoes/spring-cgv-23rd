@@ -57,7 +57,7 @@ public class FoodPaymentFacadeService implements PaymentFacadeService {
                 System.out.println("결제 시작!\n" + "retry >>> " + retry);
 
                 paymentService.pay(payment, req);
-                return foodPaymentDBService.successPayment(payment.getTargetId());
+                return foodPaymentDBService.successPayment(payment.getId());
 
             } catch (CustomException ce) {
                 switch (ce.getCode()) {
