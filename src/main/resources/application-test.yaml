@@ -1,23 +1,17 @@
 spring:
-  config:
-    import: optional:file:./.env
-
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://localhost:3306/cgvdb?allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8
+    username: root
+    password: leseoul2143**
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update #테스트 이후 수정
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
-        default_batch_fetch_size: 100
-
 logging:
   file:
     name: logs/app.log
@@ -26,7 +20,6 @@ logging:
     com.ceos23: debug
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql: trace
-    org.springframework.boot.context.config: debug
 
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [req:%X{requestId}] - %msg%n"
@@ -34,8 +27,8 @@ logging:
 
 
 jwt:
-  secret-key: ${JWT_SECRET_KEY}
+  secret-key: YWRkaXRpb25hbHN1cHBseWRlcG90c3JlcXVpcmVkISE
 
 concurrency:
-  storeId: ${CONCURRENCY_ID}
-  secret-key: ${CONCURRENCY_SECRET_KEY}`
+  storeId: kimdoes
+  secret-key: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJraW1kb2VzIiwiaWF0IjoxNzc2MTM2OTQzfQ.XdRtUpJ7emITaJ5yZ0ENomQLmon1in6TsbpbHlrDSko
