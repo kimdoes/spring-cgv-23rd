@@ -46,3 +46,5 @@ out/
 application-test.yaml
 
 logs/**
+*.pem
+.pem
