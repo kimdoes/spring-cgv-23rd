@@ -37,6 +37,6 @@ jwt:
   secret-key: ${JWT_SECRET_KEY}
 
 concurrency:
-  endpoint: "https://wiremock:8080"
+  endpoint: "http://localhost:8089"
   storeId: ${CONCURRENCY_ID}
   secret-key: ${CONCURRENCY_SECRET_KEY}

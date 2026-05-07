@@ -5,7 +5,6 @@
   },
   "response": {
     "status": 200,
-    "transformers": ["response-template"],
     "headers": {
       "Content-Type": "application/json"
     },

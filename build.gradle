@@ -48,7 +48,7 @@ dependencies {
 	runtimeOnly 'com.mysql:mysql-connector-j:8.3.0'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
+	testImplementation "org.wiremock:wiremock-standalone:3.3.1"
 }
 
 tasks.named('test') {

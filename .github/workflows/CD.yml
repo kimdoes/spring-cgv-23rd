@@ -62,10 +62,11 @@ jobs:
             JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
             CONCURRENCY_ID=${{ secrets.CONCURRENCY_ID }}
             CONCURRENCY_SECRET_KEY=${{ secrets.CONCURRENCY_SECRET_KEY }}
+            SPRING_PROFILES_ACTIVE=k6
             EOF
             
             sudo docker compose pull
-            sudo docker compose up -d
+            docker compose up -d --force-recreate
             
             for i in {1..10}; do
               if curl -f http://localhost:80/health/ready; then

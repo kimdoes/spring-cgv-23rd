@@ -28,10 +28,14 @@ import com.ceos23.spring_cgv_23rd.User.DTO.LoginRequestDTO;
 import com.ceos23.spring_cgv_23rd.User.DTO.SignupRequestDTO;
 import com.ceos23.spring_cgv_23rd.User.Repository.UserRepository;
 import com.ceos23.spring_cgv_23rd.global.DTO.ErrDTO;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import jakarta.servlet.http.Cookie;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.hamcrest.Matchers.*;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -47,6 +51,10 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
+
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -54,6 +62,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@WireMockTest
 class ApplicationTests {
 	@Autowired
 	private MockMvc mockmvc;
@@ -82,6 +91,14 @@ class ApplicationTests {
 	private CartRepository cartRepository;
 	@Autowired
 	private FoodOrderRepository foodOrderRepository;
+
+    @RegisterExtension
+    static WireMockExtension wireMockServer =
+            WireMockExtension.newInstance()
+                    .options(wireMockConfig()
+							.port(8089)
+							.globalTemplating(true))
+                    .build();
 
 	void signup() throws Exception {
 		if (userRepository.existsByLoginId("ceos1234")) {
@@ -229,6 +246,7 @@ class ApplicationTests {
 		assertThat(map.get(tms.get(0).getId())).isEqualTo(2);
 		assertThat(map.get(tms.get(1).getId())).isEqualTo(1);
 	}
+
 
 	@Test
 	@Transactional
