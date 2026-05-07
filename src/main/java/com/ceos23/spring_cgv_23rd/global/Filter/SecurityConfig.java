@@ -40,7 +40,8 @@ public class SecurityConfig {
                                 "/api/menus",
                                 "/api/theater",
                                 "/api/movie",
-                                "/api/screen"
+                                "/api/screen",
+                                "/health/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST
                         ).permitAll()
