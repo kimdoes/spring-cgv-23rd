@@ -72,6 +72,8 @@ jobs:
             DB_USERNAME=${{ secrets.DB_USERNAME }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+            CONCURRENCY_ID=${{ secrets.CONCURRENCY_ID }}
+            CONCURRENCY_SECRET_KEY=${{ secrets.CONCURRENCY_SECRET_KEY }}
             EOF
             
             sudo docker compose pull

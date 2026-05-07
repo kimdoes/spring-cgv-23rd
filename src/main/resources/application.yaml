@@ -39,4 +39,4 @@ jwt:
 
 concurrency:
   storeId: ${CONCURRENCY_ID}
-  secret-key: ${CONCURRENCY_SECRET_KEY}`
+  secret-key: ${CONCURRENCY_SECRET_KEY}
