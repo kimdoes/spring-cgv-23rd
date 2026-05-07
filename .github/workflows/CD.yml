@@ -62,6 +62,8 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
+            cd /home/ubuntu/spring-cgv-23rd
+          
             IMAGE_TAG=${{ github.event.workflow_run.head_sha }}
             
             cat > .env <<EOF
