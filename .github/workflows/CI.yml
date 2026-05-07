@@ -1,4 +1,4 @@
-name: CGV_CD
+name: CGV_CI
 on:
   push:
     branches:
