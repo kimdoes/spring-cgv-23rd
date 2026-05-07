@@ -15,7 +15,7 @@ import java.util.Map;
 @RequestMapping("/health")
 public class health {
 
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     /**
      * CD 이후 서버가 정상적으로 동작하는지 파악하기 위한 엔드포인트입니다.
