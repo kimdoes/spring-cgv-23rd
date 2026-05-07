@@ -12,6 +12,15 @@ jobs:
     permissions:
       contents: read
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: cgvdb
+        ports:
+          - 3306:3306
+
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK17
@@ -29,9 +38,9 @@ jobs:
       - name: Build with Gradle Wrapper
         run: ./gradlew build
         env:
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_URL: jdbc:mysql://127.0.0.1:3306/cgvdb?allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8
+          DB_USERNAME: root
+          DB_PASSWORD: ${{ secrets.DB_TEST_SECRET }}
 
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
 
