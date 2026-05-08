@@ -39,7 +39,7 @@ jobs:
         run: ./gradlew build -x test
 
       - name: Test with Gradle Wrapper
-        run: ./gradlew test --info
+        run: ./gradlew test --stacktrace
         env:
           DB_URL: jdbc:mysql://127.0.0.1:3306/cgvdb?allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8
           DB_USERNAME: root
