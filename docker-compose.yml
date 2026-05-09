@@ -8,15 +8,6 @@ services:
     env_file:
       - .env
 
-    environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-      DB_URL: ${DB_URL}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-      CONCURRENCY_ID: ${CONCURRENCY_ID}
-      CONCURRENCY_SECRET_KEY: ${CONCURRENCY_SECRET_KEY}
-
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health/ready" ]
       interval: 10s
