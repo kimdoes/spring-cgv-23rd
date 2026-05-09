@@ -14,9 +14,11 @@ import com.ceos23.spring_cgv_23rd.Theater.Domain.Theater;
 import com.ceos23.spring_cgv_23rd.Theater.Repository.TheaterRepository;
 import com.ceos23.spring_cgv_23rd.User.Domain.User;
 import com.ceos23.spring_cgv_23rd.User.Repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,32 +32,23 @@ import java.util.Locale;
 @Component
 @Transactional
 @Profile("k6")
+@RequiredArgsConstructor
 public class DummyDataLoader implements CommandLineRunner {
 
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final TheaterRepository theaterRepository;
     private final ScreenRepository screenRepository;
     private final MovieRepository movieRepository;
     private final ScreeningRepository screeningRepository;
 
-    public DummyDataLoader(UserRepository userRepository, TheaterRepository theaterRepository, ScreenRepository screenRepository, MovieRepository movieRepository, ScreeningRepository screeningRepository) {
-        this.userRepository = userRepository;
-        this.theaterRepository = theaterRepository;
-        this.screenRepository = screenRepository;
-        this.movieRepository = movieRepository;
-        this.screeningRepository = screeningRepository;
-    }
-
     @Override
     public void run(String... args) throws Exception {
         Faker faker = new Faker(new Locale("ko"));
-        List<User> users = new ArrayList<>();
         List<Theater> theaters = new ArrayList<>();
         List<Screen> screens = new ArrayList<>();
         List<Screening> screenings = new ArrayList<>();
         List<Movie> movies = new ArrayList<>();
-
-        users.add(User.create("ceos1234", "세오스", "ceos1234**", true, 22));
 
         for (int i = 0; i < 10; i++){
             Theater theater = Theater.create(
@@ -93,7 +86,11 @@ public class DummyDataLoader implements CommandLineRunner {
             }
         }
 
-        userRepository.saveAll(users);
+        userRepository.save(
+                User.create(
+                        "ceos1234", "세오스", passwordEncoder.encode("ceos1234**"), true, 21
+                )
+        );
         theaterRepository.saveAll(theaters);
         screenRepository.saveAll(screens);
         movieRepository.saveAll(movies);

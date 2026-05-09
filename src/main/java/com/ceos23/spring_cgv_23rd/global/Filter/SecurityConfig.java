@@ -44,8 +44,6 @@ public class SecurityConfig {
                                 "/health/**",
                                 "/api/login"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST
-                        ).permitAll()
                         .requestMatchers(
                                 "/",
                                 "/css/**", "/images/**", "/favicon.ico/**",
