@@ -74,7 +74,7 @@ jobs:
             JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
             CONCURRENCY_ID=${{ secrets.CONCURRENCY_ID }}
             CONCURRENCY_SECRET_KEY=${{ secrets.CONCURRENCY_SECRET_KEY }}
-            SPRING_PROFILES_ACTIVE=k6
+            SPRING_PROFILES_ACTIVE=prod
             EOF
             
             sudo docker compose pull

@@ -3,7 +3,7 @@ server:
 
 spring:
   profiles:
-    active: k6
+    active: prod
 
   datasource:
     url: ${DB_URL}
