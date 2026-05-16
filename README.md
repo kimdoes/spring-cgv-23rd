@@ -157,6 +157,23 @@ public MovieSearchResponseDTO movieSearchById(Long id){
 복잡한 로직에서는 다른 방안을 사용해야겠지만 이번 예시처럼 간단한 쿼리문 같은 경우에는 데이터의 수가 많더라도 조건 분기 로직을 사용하지 않는게 성능에 더 도움이 된다는 것을 알 수 있었다.
 
 # 로깅
+```yml
+logging:
+  level:
+    root: INFO
+    com.example.logdemo: info
+    org.springframework.web: info
+    org.springframework.cache: trace
+
+  file:
+    name: logs/application.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+```
+application.yml 파일에 다음과 같은 설정을 추가해 로그들이 하나의 공통된 출력을 갖도록하였다.
+순서대로 로그가 발생한 시간-발생한 스레드명-로그레벨을 고정된 폭으로 출력-실제 로그 메시지로 구성되게하여 어떤 스레드에서, 언제 로그가 발생하였는지 알 수 있도록했다.
+
 ## 개발/운영 로그
 ```java
 log.warn("재고 부족: menuId={}, 사용자 주문 수량={}", menuReqInfos.menuId(), menuReqInfos.quantity());
@@ -186,20 +203,3 @@ if (movieOptional.isPresent()){ //이미 있음, 취소
 }
 ```
 - 영화 좋아요, 영화관 좋아요 등 사용자의 패턴 분석을 위한 로그
-
-```yml
-logging:
-  level:
-    root: INFO
-    com.example.logdemo: info
-    org.springframework.web: info
-    org.springframework.cache: trace
-
-  file:
-    name: logs/application.log
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
-```
-application.yml 파일에 다음과 같은 설정을 추가해 로그들이 하나의 공통된 출력을 갖도록하였다.
-순서대로 로그가 발생한 시간-발생한 스레드명-로그레벨을 고정된 폭으로 출력-실제 로그 메시지로 구성되게하여 어떤 스레드에서, 언제 로그가 발생하였는지 알 수 있도록했다.
