@@ -1,4 +1,5 @@
-# 캐시 사용해보기
+# 캐싱
+
 ## 가설
 캐싱을 사용할 때 모든 영화를 일괄적으로 가져오는 것보다 일정기간동안 일정횟수 이상 조회요청이 들어온 엔티티만 캐싱하면 어떨까?
 
@@ -154,3 +155,51 @@ public MovieSearchResponseDTO movieSearchById(Long id){
 무차별적 캐싱은 캐시 메모리를 많이 소모하기 때문에 조건부 캐싱이 더 성능이 좋을 것으로 예측했지만, 오히려 조건부 캐싱에서 조건탐색로직에 때문에 성능이 약 1.5배 정도 더 낮은 편이었다.
 
 복잡한 로직에서는 다른 방안을 사용해야겠지만 이번 예시처럼 간단한 쿼리문 같은 경우에는 데이터의 수가 많더라도 조건 분기 로직을 사용하지 않는게 성능에 더 도움이 된다는 것을 알 수 있었다.
+
+# 로깅
+## 개발/운영 로그
+```java
+log.warn("재고 부족: menuId={}, 사용자 주문 수량={}", menuReqInfos.menuId(), menuReqInfos.quantity());
+```
+
+## 감사/보안 로그
+```java
+log.debug("결제 PG 요청 시작, paymentId = {}, retry >>> {}", payment.getPaymentId(), retry);
+log.info("결제 시작: userId = {}, payType = {} paymentId = {}, userId = {}, targetId = {}, storeId = {}, orderName = {}, totalPayAmount = {}",
+                    userLoginId, payment.getPayType(), payment.getPaymentId(), payment.getUserLoginId(), payment.getTargetId(), payment.getStoreId(), payment.getOrderName(), payment.getTotalPayAmount());
+log.error("결제에 실패하였음. paymentId={}, errorMessage={}", payment.getPaymentId(), ce.getMessage());                         
+```
+- 결제를 위한 외부연동 등 돈과 관련된 로그
+
+```java
+log.debug("로그인 검증 성공, userId={}", user.getUsername());
+```
+- 인증/인가 관련 로그
+
+## 분석 로그
+```java
+if (movieOptional.isPresent()){ //이미 있음, 취소
+    log.info("사용자 {}가 영화 {}에 대해 북마크를 취소함", user.getLoginId(), movie.getId());
+    bookmarkedMovieRepository.deleteBookmarkedMovieById(movieOptional.get().getId());
+
+    return LikedMovieResponseDTO.create(RequestType.DELETE, movieOptional.get().getMovie());
+}
+```
+- 영화 좋아요, 영화관 좋아요 등 사용자의 패턴 분석을 위한 로그
+
+```yml
+logging:
+  level:
+    root: INFO
+    com.example.logdemo: info
+    org.springframework.web: info
+    org.springframework.cache: trace
+
+  file:
+    name: logs/application.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+```
+application.yml 파일에 다음과 같은 설정을 추가해 로그들이 하나의 공통된 출력을 갖도록하였다.
+순서대로 로그가 발생한 시간-발생한 스레드명-로그레벨을 고정된 폭으로 출력-실제 로그 메시지로 구성되게하여 어떤 스레드에서, 언제 로그가 발생하였는지 알 수 있도록했다.
